@@ -3,10 +3,12 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#142B4D">
-<meta name="description" content="Recomp Coach: track your meals, workouts and progress in your own account.">
+<meta name="description" content="CHUCHEP FITNESS APP: track your meals, workouts and progress in your own account.">
 <script src="./config.js"></script>
 <meta charset="utf-8">
-<title>Recomp Coach</title>
+<title>CHUCHEP FITNESS APP</title>
+<meta name="application-name" content="CHUCHEP FITNESS APP">
+<meta name="apple-mobile-web-app-title" content="CHUCHEP FITNESS APP">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Archivo:wght@400;500;600;700&display=swap">
 <style>
@@ -277,9 +279,11 @@ nav.tabs button{border-radius:12px}nav.tabs button.on{background:var(--navy-soft
 .reconnect{align-items:flex-start;gap:20px;margin-top:10vh;min-height:340px;justify-content:center}.reconnect-icon{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--navy-soft);color:var(--kcal);font-size:28px}.reconnect-icon .spin{width:25px;height:25px;border-width:3px}.reconnect h1{font-size:30px}.reconnect[aria-busy="true"]{border-top-color:var(--navy)}
 </style><style>
 .swap-exercise-button{align-self:flex-start;min-height:44px;font-size:13px;padding:8px 14px}.swap-remember{display:flex;gap:10px;align-items:center;font-size:14px;line-height:1.5}.swap-remember input{width:20px;height:20px;min-height:20px;flex-shrink:0;accent-color:var(--navy)}.swap-option{padding:16px;gap:12px}.ex[data-exercise]{scroll-margin-top:16px}.ex h3[tabindex]{outline-offset:4px}
+</style><style id="visible-customization">
+.day-customize-button{width:calc(100% - 28px);margin:0 14px 14px;min-height:48px;border:1px solid var(--navy);background:var(--navy);color:#fff;display:flex;font-size:14px;justify-content:center}.swap-exercise-button{align-self:stretch;display:flex;width:100%;min-height:48px;background:var(--navy)!important;color:#fff!important;border-color:var(--navy)!important;justify-content:center;font-size:14px}.plancard{flex-wrap:wrap}.plancard>.btn{min-height:46px}.day-edit-item{gap:10px;padding:16px}.day-edit-item h3{font-size:17px;line-height:1.4}
 </style></head>
 <body>
-<div class="app" id="app"></div>
+<div class="app" id="app"><section class="card welcome reconnect" role="status"><span class="welcome-mark" aria-hidden="true">C</span><h1>Welcome back</h1><p class="muted">Loading your app…</p></section></div>
 <nav class="tabs" aria-label="Sections"><div class="in" id="tabs"></div></nav>
 <div id="sheet-root"></div>
 <div id="timer-root"></div>
@@ -755,7 +759,7 @@ function render(){
  if(Cloud.ready&&S.profile)checkWins(false);
 }
 function header(title,withDate){
- return `<div class="topbar"><div class="stack" style="gap:2px"><span class="eyebrow">${withDate?(S.date===today()?'Today':fmtDate(S.date,{weekday:'long'})):'Recomp Coach'}</span><h1>${title}</h1></div>
+ return `<div class="topbar"><div class="stack" style="gap:2px"><span class="eyebrow">${withDate?(S.date===today()?'Today':fmtDate(S.date,{weekday:'long'})):'CHUCHEP FITNESS APP'}</span><h1>${title}</h1></div>
  ${withDate?`<div class="datenav"><button data-act="day" data-v="-1" aria-label="Previous day">‹</button><button data-act="day" data-v="1" aria-label="Next day" ${S.date>=today()?'disabled style="opacity:.35"':''}>›</button></div>`:`<div class="sync">${esc(Cloud.status)}</div>`}</div>`;
 }
 
@@ -824,9 +828,10 @@ function vGym(){
   <div class="training-meta"><span><strong>${dayById(nk).ex.length}</strong> exercises</span><span><strong>${pl.days}</strong> days / week</span><span><strong>${S.workouts.length}</strong> sessions logged</span></div>
   <button class="btn" data-act="startday" data-v="${nk}">Start workout <span aria-hidden="true">↗</span></button>
  </section>
- <div class="plancard"><div class="stack" style="gap:2px"><span class="eyebrow">Your plan${R.k===pk?' · recommended':''}</span><h3>${pl.n}</h3><span class="small muted">${pl.days} days a week, in order, any days you like</span></div><button class="btn sm" data-act="plans">Change</button></div>
+ <div class="plancard"><div class="stack" style="gap:2px"><span class="eyebrow">Your plan${R.k===pk?' · recommended':''}</span><h3>${pl.n}</h3><span class="small muted">${pl.days} days a week, in order, any days you like</span></div><button class="btn sm" data-act="plans">Change program</button></div>
  ${R.k!==pk?`<button class="note" data-act="plans" style="text-align:left">We recommend <b>${PLANS[R.k].n}</b> for you. ${esc(R.why)} <u>Compare plans</u></button>`:''}
  ${pl.d.map(p=>{const open=S.prevDay===p.key;return `<div class="daywrap ${p.key===nk?'next':''}"><button class="daycard" data-act="startday" data-v="${p.key}"><span class="daynum">${p.n}</span><span class="stack" style="gap:2px"><span class="eyebrow">${p.key===nk?'Up next · ':''}Day ${p.n} · ${p.ex.length} exercises</span><h3>${p.title}</h3></span><span class="btn sm ${p.key===nk?'':'ghost'}">Start</span></button>
+  <button class="btn block day-customize-button" data-act="customizeday" data-v="${p.key}">↔ Change exercises</button>
   <button class="prevtog" data-act="prevday" data-v="${p.key}" aria-expanded="${open}">${open?'Hide exercises ▴':'Exercises & form videos ▾'}</button>
   ${open?`<div class="prev">${p.ex.map(id=>{const e=EX[id];return `<div class="pe"><div class="row between" style="align-items:flex-start"><div class="stack" style="gap:0"><span class="nm" style="font-weight:600">${e.n}</span><span class="small muted">${e.m}</span></div><span class="scheme" style="font-size:17px">${e.sets} × ${e.lo}–${e.hi}${e.k==='t'?'s':''}</span></div><span class="small muted">${esc(e.cue)}</span>${videoBlock(id)}</div>`}).join('')}</div>`:''}</div>`}).join('')}
  <p class="small muted" style="margin:0">Weights update after every session: hit the top of the rep range on all sets, then the app tells you to go up.</p>
@@ -894,6 +899,29 @@ function vPlans(){
 }
 
 /* Swaps keep the same primary target and movement category. */
+function dayEditorHTML(dayKey){
+ const day=dayById(dayKey);
+ return `<div class="row between"><div><span class="eyebrow">DAY ${day.n}</span><h2>Change exercises</h2></div><button class="x" data-act="close" aria-label="Close">×</button></div><p class="small muted">${esc(day.title)}. Pick an exercise below to replace it with another for the same primary muscle.</p>${day.ex.map(id=>`<div class="card day-edit-item"><h3>${esc(EX[id].n)}</h3><span class="small muted">${esc(EX[id].m)}</span><button class="btn block" data-act="planned-swap" data-v="${dayKey}" data-id="${id}" aria-label="Change planned ${esc(EX[id].n)}">↔ Change exercise</button></div>`).join('')}`;
+}
+function plannedSwapOptions(dayKey,from){
+ const ids=dayById(dayKey).ex;
+ return ids.includes(from)?Object.keys(EX).filter(id=>id!==from&&canSwapExercise(from,id)&&!ids.includes(id)):[];
+}
+function plannedSwapHTML(s){
+ const options=plannedSwapOptions(s.day,s.from);
+ return `<div class="row between"><h2>Choose a replacement</h2><button class="x" data-act="close" aria-label="Close">×</button></div><p class="small muted">Replacing <strong>${esc(EX[s.from].n)}</strong> · Target: <strong>${esc(swapTargetLabel(s.from))}</strong></p>${options.length?options.map(id=>`<div class="card swap-option"><h3>${esc(EX[id].n)}</h3><span class="small muted">${esc(EX[id].m)}</span><span class="small">${EX[id].sets} × ${EX[id].lo}–${EX[id].hi} ${EX[id].k==='t'?'seconds':'reps'}</span><button class="btn block" data-act="save-planned-swap" data-v="${id}" data-day="${s.day}" data-id="${s.from}">Use this exercise</button></div>`).join(''):'<div class="empty">No other matching exercise is available outside this session.</div>'}<button class="btn line" data-act="customizeday" data-v="${s.day}">Back to exercises</button>`;
+}
+function savePlannedSwap(dayKey,from,to){
+ if(!S.profile){toast('Save your targets first.');return}
+ if(!plannedSwapOptions(dayKey,from).includes(to)){toast('Choose a matching exercise.');return}
+ const original=ALLDAYS.find(d=>d.key===dayKey),index=dayById(dayKey).ex.indexOf(from);
+ if(!original||index<0)return;
+ const base=original.ex[index];S.profile.exerciseSwaps=S.profile.exerciseSwaps||{};
+ const saved=S.profile.exerciseSwaps[dayKey]={...(S.profile.exerciseSwaps[dayKey]||{})};
+ if(base===to)delete saved[base];else saved[base]=to;
+ saveProfile();openSheet({kind:'dayedit',day:dayKey});render();toast('Saved '+EX[to].n+' for this training day.');
+}
+
 function swapTarget(id){
  const specific={dbsp:'front_shoulders',ohp:'front_shoulders',latraise:'side_shoulders',cablelatraise:'side_shoulders',facepull:'rear_shoulders',reardelt:'rear_shoulders'};
  return specific[id]||EX_FILTERS[id]?.[1]||'';
@@ -1049,7 +1077,7 @@ function vMe(){
  </div>
  <div class="card" id="preview"></div>
  <button class="btn block" data-act="saveprofile">${S.profile?'Update targets':'Save and start'}</button>
- <div class="card"><h2>Your data</h2><p class="small muted" style="margin:0">${esc(Cloud.status)}. ${Cloud.sheetUrl?`Every meal, weigh-in and set is a row you can open in <a href="${esc(Cloud.sheetUrl)}" target="_blank" style="color:var(--fat)">Recomp Coach Data</a>.`:''}</p>
+ <div class="card"><h2>Your data</h2><p class="small muted" style="margin:0">${esc(Cloud.status)}. ${Cloud.sheetUrl?`Every meal, weigh-in and set is a row you can open in <a href="${esc(Cloud.sheetUrl)}" target="_blank" style="color:var(--fat)">CHUCHEP FITNESS APP Data</a>.`:''}</p>
  ${S.profile?`<button class="btn ${S.arm==='reset'?'danger':'line'}" data-act="reset">${S.arm==='reset'?'Tap again to erase everything':'Erase all data'}</button>`:''}</div>`;
 }
 function readForm(){return {name:$('#p-name').value.trim(),sex:$('#p-sex').value,age:num($('#p-age').value),height:num($('#p-height').value),weight:num($('#p-weight').value),goal:num($('#p-goal').value),bf:$('#p-bf').value?num($('#p-bf').value):'',lifestyle:$('#p-life').value,pace:$('#p-pace').value,exp:$('#p-exp').value,eatBack:num($('#p-eat').value)}}
@@ -1073,6 +1101,8 @@ function renderSheet(){
  const s=S.sheet,root=$('#sheet-root');if(!s){root.innerHTML='';return}
  let body='';
  if(s.kind==='swap'&&S.draft?.ex[s.from])body=swapSheetHTML(s);
+ if(s.kind==='dayedit')body=dayEditorHTML(s.day);
+ if(s.kind==='planswap')body=plannedSwapHTML(s);
  if(s.kind==='food'){
   const modes=[['describe','Describe'],...(AI_READY?[['photo','Photo']]:[]),['quick','Quick'],['manual','Manual']];
   if(!AI_READY&&(s.mode==='describe'||s.mode==='photo'))s.mode='quick';
@@ -1216,6 +1246,9 @@ document.addEventListener('click',e=>{
    render();break}
   case 'checkin':{const w=num($('#ci-w').value),wa=num($('#ci-waist').value);const d=S.date;const day=S.days[d]||(S.days[d]={meals:[],acts:[]});
    if(w)day.weight=w;else delete day.weight;if(wa)day.waist=wa;else delete day.waist;saveDay(d);toast(w?`Logged ${f1(w)} kg`:'Check-in saved');render();break}
+  case 'customizeday':openSheet({kind:'dayedit',day:v});break;
+  case 'planned-swap':openSheet({kind:'planswap',day:v,from:t.dataset.id});break;
+  case 'save-planned-swap':savePlannedSwap(t.dataset.day,t.dataset.id,v);break;
   case 'swapexercise':if(S.draft?.ex[t.dataset.id])openSheet({kind:'swap',from:t.dataset.id});break;
   case 'swappick':applyExerciseSwap(t.dataset.id,v,$('#swap-remember')?.checked!==false);break;
   case 'startday':startDay(v);break;
@@ -1283,12 +1316,12 @@ function guessMeal(){const h=new Date().getHours();return h<10?'Breakfast':h<15?
 
 function accountHTML(){return `<div class="account-strip"><span class="account-avatar" aria-hidden="true">${esc((S.profile?.name||Account.name||Account.email).slice(0,1).toUpperCase())}</span><div class="account-copy"><strong>${esc(S.profile?.name||Account.name||'Your private space')}</strong><span>${esc(Account.email)}</span></div><span class="account-state" role="status">${esc(Cloud.status)}</span><button class="signout" data-act="signout">Sign out</button></div>`}
 function welcomeHTML(){
- if(Account.restoring||(sessionToken&&!Account.ready))return `<section class="card welcome reconnect" aria-busy="${Account.restoring}"><span class="welcome-mark" aria-hidden="true">R</span><span class="eyebrow">RECOMP COACH</span><div class="reconnect-icon">${Account.error?'↻':'<span class="spin" aria-hidden="true"></span>'}</div><h1>${Account.error?'Let’s reconnect':'Signing you in…'}</h1><p class="muted" role="status" aria-live="polite">${Account.error?'Your saved sign-in is still on this device. Check your connection and try again.':'Welcome back. We’re reconnecting your account and loading your tracker.'}</p>${Account.error?'<button class="btn block" data-act="retry">Try again</button><button class="btn line" data-act="signout">Sign out</button>':'<p class="small muted">No email code needed while your session is valid.</p>'}</section>`;
+ if(Account.restoring||(sessionToken&&!Account.ready))return `<section class="card welcome reconnect" aria-busy="${Account.restoring}"><span class="welcome-mark" aria-hidden="true">C</span><span class="eyebrow">CHUCHEP FITNESS APP</span><div class="reconnect-icon">${Account.error?'↻':'<span class="spin" aria-hidden="true"></span>'}</div><h1>${Account.error?'Let’s reconnect':'Logging you in…'}</h1><p class="muted" role="status" aria-live="polite">${Account.error?'Your saved sign-in is still on this device. Check your connection and try again.':'Welcome back. We’re restoring your saved sign-in and loading your tracker.'}</p>${Account.error?'<button class="btn block" data-act="retry">Try again</button><button class="btn line" data-act="signout">Sign out</button>':'<p class="small muted">No email code needed while your session is valid.</p>'}</section>`;
 
  if(Login.ticket&&Login.expiresAt&&Login.expiresAt<=Date.now()){Login.ticket='';forgetPendingLogin();Account.error='Your email code expired. Request a new one.'}
  if(Account.ready)return `<section class="card welcome"><h1>Your tracker</h1><p role="status">${Account.error?'Could not load your records.':'Loading your records…'}</p>${Account.error?'<button class="btn" data-act="retry">Try again</button>':'<span class="spin" aria-label="Loading"></span>'}<button class="btn line" data-act="signout">Sign out</button></section>`;
  const signup=Login.mode==='signup';
- return `<section class="card welcome"><span class="welcome-mark" aria-hidden="true">R</span><span class="eyebrow">RECOMP COACH</span><h1>${Login.ticket?'Check your email':signup?'Start your journey':'Welcome back'}</h1><p class="muted">${Login.ticket?`Enter the eight-digit code sent to ${esc(Login.email)}. It expires in 10 minutes.`:'Your meals, workouts and progress. One private account.'}</p>
+ return `<section class="card welcome"><span class="welcome-mark" aria-hidden="true">C</span><span class="eyebrow">CHUCHEP FITNESS APP</span><h1>${Login.ticket?'Check your email':signup?'Start your journey':'Welcome back'}</h1><p class="muted">${Login.ticket?`Enter the eight-digit code sent to ${esc(Login.email)}. It expires in 10 minutes.`:'Your meals, workouts and progress. One private account.'}</p>
  ${!Login.ticket?`<div class="login-tabs"><button data-act="loginmode" data-v="signin" class="${!signup?'on':''}" aria-pressed="${!signup}" ${Login.busy?'disabled':''}>Sign in</button><button data-act="loginmode" data-v="signup" class="${signup?'on':''}" aria-pressed="${signup}" ${Login.busy?'disabled':''}>Create account</button></div>`:''}
  <form id="login-form" class="login-form">
  ${Login.ticket?'<label class="f">Email verification code<input id="login-code" class="login-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{8}" maxlength="8" required autofocus placeholder="00000000"></label>':`${signup?`<label class="f">Your name<input id="login-name" autocomplete="name" maxlength="60" required value="${esc(Login.name)}" placeholder="What should we call you?"></label>`:''}<label class="f">Email address<input id="login-email" type="email" autocomplete="email" maxlength="254" required value="${esc(Login.email)}" placeholder="you@example.com"></label>`}
