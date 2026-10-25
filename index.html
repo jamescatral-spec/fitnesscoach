@@ -423,7 +423,14 @@ const MEALS=['Breakfast','Lunch','Dinner','Snack'];
 /* ---------- state & storage ---------- */
 let LS='', LSD='';
 const Account={email:'',name:'',ready:false,error:''};
-let sessionToken='';try{sessionToken=sessionStorage.getItem('recomp.web.session')||''}catch{}
+const SESSION_KEY='recomp.web.session';
+let sessionToken='';
+try{sessionToken=localStorage.getItem(SESSION_KEY)||''}catch{}
+if(!sessionToken){try{sessionToken=sessionStorage.getItem(SESSION_KEY)||'';if(sessionToken){persistSession(sessionToken)}}catch{}}
+function persistSession(token){
+ try{localStorage.setItem(SESSION_KEY,token);sessionStorage.removeItem(SESSION_KEY)}
+ catch{try{sessionStorage.setItem(SESSION_KEY,token)}catch{}}
+}
 const Login={ticket:'',email:'',name:'',busy:false,mode:'signin'};
 const EXAMPLE={sex:'male',age:30,height:170,weight:82,goal:72,bf:'',lifestyle:'desk',pace:'steady',exp:'int',eatBack:50};
 let S={profile:null,days:{},workouts:[],tab:'today',date:today(),range:'week',sheet:null,draft:null,strEx:'bench',coach:null,rest:null};
@@ -506,7 +513,7 @@ const deleteWorkout=id=>schedule('wo:'+id,()=>run('deleteWorkout',id));
 let AI_READY=false;
 function aiErr(e){
  const m=String(e&&e.message||e||'');
- if(/GEMINI_API_KEY/.test(m))return 'AI is not set up yet. Add GEMINI_API_KEY in Apps Script → Project Settings → Script properties.';
+ if(/GEMINI_API_KEY/.test(m))return 'AI is not enabled yet. You can still log food with Quick or Manual.';
  if(/rate|429|overloaded|529/i.test(m))return 'Free AI limit reached for now. Try again later, or use Quick add.';
  if(/offline/.test(m))return 'Check your connection and reopen this website.';
  if(/photo/i.test(m))return m;
@@ -1009,7 +1016,7 @@ function renderSheet(){
   body=`<div class="row between"><h2>Add food</h2><button class="x" data-act="close" aria-label="Close">×</button></div>
   <div class="seg">${MEALS.map(m=>`<button data-act="meal" data-v="${m}" class="${s.meal===m?'on':''}">${m}</button>`).join('')}</div>
   <div class="row">${modes.filter(([k])=>AI_READY||!['describe','photo'].includes(k)).map(([k,l])=>`<button class="chip ${s.mode===k?'on':''}" data-act="fmode" data-v="${k}">${l}</button>`).join('')}</div>
-  ${!AI_READY?'<p class="small muted" style="margin:0">Photo and describe need GEMINI_API_KEY in Script properties. Quick and Manual work without it.</p>':''}
+  ${!AI_READY?'<p class="small muted" style="margin:0">AI food estimates are not enabled yet. You can still use Quick or Manual food logging.</p>':''}
   ${s.mode==='describe'?`<label class="f">What did you eat? Include amounts if you know them.<textarea id="ai-text" placeholder="1 cup rice, 1 serving chicken adobo, half a cucumber">${esc(s.text||'')}</textarea></label><button class="btn" data-act="estimate" ${s.busy?'disabled':''}>${s.busy?'<span class="spin"></span> Estimating':'Estimate macros'}</button>`:''}
   ${s.mode==='photo'?`<label class="f">Photo of your plate<input id="ai-photo" type="file" accept="image/*" capture="environment"></label>${s.fileName?`<span class="small muted">Selected: ${esc(s.fileName)}</span>`:''}<label class="f">Anything the photo can't show? (optional)<input id="ai-hint" value="${esc(s.hint||'')}" placeholder="fried in oil, about 1.5 cups rice"></label><button class="btn" data-act="estimate" ${s.busy||!s.file?'disabled':''}>${s.busy?'<span class="spin"></span> Reading photo':'Identify food & macros'}</button>`:''}
   ${s.mode==='quick'?`<div>${QUICK.map((q,i)=>`<div class="item"><div><div class="nm">${q.name}</div><div class="sub">${q.portion} · P ${q.p} · C ${q.c} · F ${q.f}</div></div><span class="num" style="font-size:17px">${q.kcal}</span><button class="btn sm ghost" data-act="quick" data-i="${i}">Add</button></div>`).join('')}</div><p class="small muted" style="margin:0">Approximate values from USDA and Philippine food tables.</p>`:''}
@@ -1055,7 +1062,7 @@ function addMeals(list){
 }
 
 async function coach(){
- if(!AI_READY){S.coach={text:'',err:'Coach review needs GEMINI_API_KEY in Apps Script → Project Settings → Script properties.'};render();return}
+ if(!AI_READY){S.coach={text:'',err:'AI coaching is not enabled yet. Ask the app owner to finish the AI setup.'};render();return}
  const n={week:7,month:30,q:90}[S.range];const dates=Array.from({length:n},(_,i)=>addDays(today(),i-n+1));const T=targets();
  const days=dates.map(d=>{const i=dayInfo(d);return {date:d,kcal:i.logged?Math.round(i.eat.kcal):null,protein:i.logged?Math.round(i.eat.p):null,budget:i.budget,burnedActivity:Math.round(i.burn),weight:S.days[d]?.weight||null,waist:S.days[d]?.waist||null}});
  const lifts={};S.workouts.filter(w=>w.date>=dates[0]).forEach(w=>Object.entries(w.ex||{}).forEach(([id,sets])=>{const best=sets.filter(s=>num(s.r)>0).map(s=>`${s.w}kg×${s.r}`);if(best.length)(lifts[EX[id]?.n||id]=lifts[EX[id]?.n||id]||[]).push(`${w.date}: ${best.join(', ')}`)}));
@@ -1220,7 +1227,7 @@ function welcomeHTML(){
  <button class="btn block" type="submit" ${Login.busy?'disabled':''}>${Login.busy?'Please wait…':Login.ticket?'Verify & sign in':signup?'Create account with email':'Email me a sign-in code'}</button>
  </form>
  ${Login.ticket?`<button class="btn line" data-act="differentemail" ${Login.busy?'disabled':''}>Change email or request a new code</button>`:''}
- <p class="small muted">${Login.ticket?'Check your spam folder too. Only the newest code works.':'No password to remember. We email you a code to confirm it’s you. New accounts are created after verification.'}</p><p class="small muted">Your records stay in private Google Sheets managed by the app owner. Sign out when using a shared device.</p></section>`;
+ <p class="small muted">${Login.ticket?'Check your spam folder too. Only the newest code works.':'No password to remember. We email you a code to confirm it’s you. New accounts are created after verification.'}</p><p class="small muted">Your records stay in private Google Sheets managed by the app owner. Stay signed in on this device for up to 30 days. Sign out on a shared device.</p></section>`;
 }
 async function submitLogin(){
  if(Login.busy)return;
@@ -1231,16 +1238,16 @@ async function submitLogin(){
   if(!Login.ticket){const r=await rpc('authRequestCode',Login.email,Login.name);Login.ticket=r.ticket;Login.email=r.email;}
   else{
    const r=await rpc('authVerifyCode',Login.ticket,code);sessionToken=r.token;
-   try{sessionStorage.setItem('recomp.web.session',sessionToken)}catch{}
+   persistSession(sessionToken);
    Login.ticket='';await bootAccount();
   }
  }catch(e){Account.error=accountError(e);}
  Login.busy=false;render();$('#login-code')?.focus();
 }
-function clearAccount(){
+function clearAccount(preserveStoredToken=false){
  if(LSD){try{localStorage.removeItem(LSD)}catch{}}
  if(LS){try{localStorage.removeItem(LS)}catch{}}
- sessionToken='';try{sessionStorage.removeItem('recomp.web.session')}catch{}
+ sessionToken='';if(!preserveStoredToken){try{localStorage.removeItem(SESSION_KEY)}catch{}}try{sessionStorage.removeItem(SESSION_KEY)}catch{}
  Account.ready=false;Account.email='';Account.name='';Account.error='';Cloud.ok=false;Cloud.ready=false;
  S.profile=null;S.days={};S.workouts=[];S.draft=null;S.sheet=null;S.coach=null;S.rest=null;S.tab='today';S.arm=null;S.lastQ=null;S.planPicker=false;Library.q='';Library.group='all';Library.muscle='all';Library.days='all';Library.view='programs';
  $('#sheet-root').innerHTML='';$('#timer-root').innerHTML='';document.body.style.overflow='';
@@ -1265,6 +1272,11 @@ async function bootAccount(){
  }catch(e){if(/SESSION_EXPIRED/.test(String(e.message||e)))clearAccount();Account.error=accountError(e);render()}
 }
 
+window.addEventListener('storage',e=>{
+ if(e.key!==SESSION_KEY||e.newValue===sessionToken)return;
+ clearAccount(true);sessionToken=e.newValue||'';
+ if(sessionToken)bootAccount();else render();
+});
 document.addEventListener('submit',e=>{if(e.target.id==='login-form'){e.preventDefault();submitLogin()}});
 /* boot */
 if(!hist(S.strEx).length){const t=Object.keys(EX).find(id=>!['bw','t'].includes(EX[id].k)&&hist(id).length);if(t)S.strEx=t}
